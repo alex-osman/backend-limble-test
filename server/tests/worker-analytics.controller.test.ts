@@ -103,3 +103,35 @@ describe("costByWorker should filter by workers correctly", () => {
     expect(result.data.breakdown.length).toBe(3);
   });
 });
+
+describe.only("costByWorker should filter by location correctly", () => {
+  it("should return correct data for all locations if no locationIds specified", async () => {
+    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3]);
+
+    expect(result.data.totalCost).toBe(462.5);
+    expect(
+      result.data.breakdown.reduce((acc, curr) => acc + curr.totalCost, 0)
+    ).toBe(462.5);
+    expect(result.data.breakdown.length).toBe(3);
+  });
+  
+  it("should return correct data for one location", async () => {
+    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3], [1]);
+
+    expect(result.data.totalCost).toBe(197.5);
+    expect(
+      result.data.breakdown.reduce((acc, curr) => acc + curr.totalCost, 0)
+    ).toBe(197.5);
+    expect(result.data.breakdown.length).toBe(3);
+  });
+
+  it("should return correct data for multiple locations", async () => {
+    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3], [1, 3]);
+
+    expect(result.data.totalCost).toBe(372.5);
+    expect(
+      result.data.breakdown.reduce((acc, curr) => acc + curr.totalCost, 0)
+    ).toBe(372.5);
+    expect(result.data.breakdown.length).toBe(3);
+  });
+});

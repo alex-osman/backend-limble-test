@@ -1,3 +1,7 @@
+import express from "express";
+import AppDataSource from "../db";
+import { LoggedTime } from "../entities/logged-time.entity";
+
 export const SECONDS_IN_HOUR = 3600;
 
 export enum TaskStatus {
@@ -23,12 +27,7 @@ export interface APIResponse<T extends WorkerBreakdown | LocationBreakdown> {
     totalCost: number;
     breakdown: T[];
   };
-  filters: {
-    taskStatus: TaskStatus;
-    workerIds?: number[];
-  };
 }
-
 
 export const validateTaskStatus = (taskStatus?: string): TaskStatus => {
   if (!taskStatus) {
@@ -61,4 +60,47 @@ export const validateObjectIds = (workerIds: any): number[] => {
     throw new Error("workerIds query parameter must contain at least one ID");
   }
   return parsedWorkerIds;
+};
+
+export const getAnalyticQueryParams = (req: express.Request) => {
+  return {
+    taskStatus: validateTaskStatus(req.query.taskStatus?.toString()),
+    workerIds: validateObjectIds(req.query.workerIds),
+    locationIds: validateObjectIds(req.query.locationIds),
+  };
+};
+
+export const buildBaseQuery = (
+  taskStatus: TaskStatus,
+  workerIds?: number[],
+  locationIds?: number[]
+) => {
+  const loggedTimesQB = AppDataSource.getRepository(LoggedTime)
+    .createQueryBuilder("logged_time")
+    .leftJoin("logged_time.worker", "worker")
+    .leftJoin("logged_time.task", "task")
+    .leftJoin("task.location", "location");
+
+  // Add task status filtering
+  if (taskStatus !== TaskStatus.BOTH) {
+    loggedTimesQB.where("task.is_complete = :isComplete", {
+      isComplete: taskStatus === TaskStatus.COMPLETE,
+    });
+  }
+
+  // Add location filtering
+  if (locationIds && locationIds.length > 0) {
+    loggedTimesQB.andWhere("location.id IN (:...locationIds)", {
+      locationIds,
+    });
+  }
+
+  // Add worker filtering
+  if (workerIds && workerIds.length > 0) {
+    loggedTimesQB.andWhere("worker.id IN (:...workerIds)", {
+      workerIds,
+    });
+  }
+
+  return loggedTimesQB;
 };

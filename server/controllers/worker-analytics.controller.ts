@@ -1,12 +1,10 @@
 import express from "express";
-import AppDataSource from "../db";
-import { LoggedTime } from "../entities/logged-time.entity";
 import {
   APIResponse,
+  buildBaseQuery,
+  getAnalyticQueryParams,
   SECONDS_IN_HOUR,
   TaskStatus,
-  validateObjectIds,
-  validateTaskStatus,
   WorkerBreakdown,
 } from "./controller-helpers";
 
@@ -15,13 +13,8 @@ export const costByWorkerRoute = async (
   res: express.Response
 ) => {
   try {
-    // Validate query parameters
-    const taskStatus = validateTaskStatus(req.query.taskStatus?.toString());
-    const workerIds = req.query.workerIds
-      ? validateObjectIds(req.query.workerIds)
-      : undefined;
-
-    const result = await costByWorker(taskStatus, workerIds);
+    const { taskStatus, locationIds, workerIds } = getAnalyticQueryParams(req);
+    const result = await costByWorker(taskStatus, workerIds, locationIds);
     res.send(result);
   } catch (e) {
     console.error(e);
@@ -31,29 +24,14 @@ export const costByWorkerRoute = async (
 
 export const costByWorker = async (
   taskStatus: TaskStatus,
-  workerIds?: number[]
+  workerIds?: number[],
+  locationIds?: number[]
 ): Promise<APIResponse<WorkerBreakdown>> => {
-  const loggedTimesQB = AppDataSource.getRepository(LoggedTime)
-    .createQueryBuilder("logged_time")
-    .leftJoinAndSelect("logged_time.worker", "worker")
-    .leftJoinAndSelect("logged_time.task", "task");
-  
-  if (taskStatus !== TaskStatus.BOTH) {
-    loggedTimesQB.where("task.is_complete = :isComplete", {
-      isComplete: taskStatus === TaskStatus.COMPLETE ? true : false,
-    });
-  }
-
-  if (workerIds && workerIds.length > 0) {
-    loggedTimesQB.andWhere("worker.id IN (:...workerIds)", {
-      workerIds,
-    });
-  }
   const queryResult: {
     workerId: number;
     workerName: string;
     totalCost: number;
-  }[] = await loggedTimesQB
+  }[] = await buildBaseQuery(taskStatus, workerIds, locationIds)
     .select([
       "worker.id AS workerId",
       "worker.username AS workerName",
@@ -72,10 +50,6 @@ export const costByWorker = async (
     data: {
       totalCost: breakdown.reduce((acc, { totalCost }) => acc + totalCost, 0),
       breakdown,
-    },
-    filters: {
-      taskStatus,
-      workerIds,
     },
   };
 };
