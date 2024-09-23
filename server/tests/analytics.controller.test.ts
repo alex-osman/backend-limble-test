@@ -1,5 +1,6 @@
 import { setupServer } from "../app";
-import { costByWorker, TaskStatus } from "../controllers/analytics.controller";
+import { TaskStatus } from "../controllers/controller-helpers";
+import { costByWorker } from "../controllers/worker-analytics.controller";
 
 beforeAll(async () => {
   await setupServer();
