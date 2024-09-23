@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
     "module": "ESNext",
-    "target": "ES2022",
+    "moduleResolution": "node",
     "outDir": "./dist",
     "rootDir": "./",
-    "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node" 
+    "skipLibCheck": true
   },
-  "include": ["./*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["./*.ts"]
 }
