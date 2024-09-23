@@ -1,19 +1,18 @@
 import request from "supertest";
-import { setupServer } from "./app";
-import * as mariadb from "mariadb";
+import { setupServer } from "../app";
+import AppDataSource from "../db";
 
 describe("GET /", () => {
   let app;
-  let db: mariadb.Pool;
 
   // Set up DB connection and express app
   beforeAll(async () => {
-    ({ app, db } = await setupServer());
+    app = await setupServer();
   });
 
   // Tear down DB connection after all tests
   afterAll(async () => {
-    await db.end();
+    await AppDataSource.destroy();
   });
 
   // Test case for GET /
