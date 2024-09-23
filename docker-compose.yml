@@ -53,3 +53,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  test:
+    image: node:21.7.1-bookworm-slim
+    working_dir: /code
+    command: "npm run test"
+    volumes:
+      - "./server:/code"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: limble-test
+      DATABASE_PASSWORD: limble-test-password
+      DATABASE_NAME: limble
+    depends_on:
+      db:
+        condition: service_healthy

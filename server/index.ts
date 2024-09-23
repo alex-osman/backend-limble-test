@@ -1,4 +1,4 @@
-import setupServer from "./app.js";
+import { setupServer } from "./app.js";
 
 const port = 3000;
 

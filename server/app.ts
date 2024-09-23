@@ -25,7 +25,7 @@ async function connect() {
   }
 }
 
-async function setupServer() {
+export const setupServer = async () => {
   await connect();
 
   app.get("/", (req, res) => {
@@ -33,7 +33,5 @@ async function setupServer() {
     res.send("Hello!");
   });
 
-  return app
+  return { app, db };
 }
-
-export default setupServer;
