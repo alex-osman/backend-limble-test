@@ -19,16 +19,18 @@ export interface APIResponse {
   status: APIResponseStatus;
   data: {
     totalCost: number;
-    breakdown: {
-      workerId: number;
-      workerName: string;
-      totalCost: number;
-    }[];
+    breakdown: WorkerBreakdown[];
   };
   filters: {
     taskStatus: TaskStatus;
     workerIds?: number[];
   };
+}
+
+export interface WorkerBreakdown {
+  workerId: number;
+  workerName: string;
+  totalCost: number;
 }
 
 export const validateTaskStatus = (taskStatus?: string): TaskStatus => {
@@ -48,8 +50,7 @@ export const validateTaskStatus = (taskStatus?: string): TaskStatus => {
   return uppercaseStatus as TaskStatus;
 };
 
-export const validateWorkerIds = (workerIds: any): number[] => {
-  console.log("what is your workerid");
+export const validateObjectIds = (workerIds: any): number[] => {
   if (!workerIds) {
     return [];
   }
@@ -59,6 +60,9 @@ export const validateWorkerIds = (workerIds: any): number[] => {
       "workerIds query parameter must be a comma-separated list of integers"
     );
   }
+  if (!parsedWorkerIds.length) {
+    throw new Error("workerIds query parameter must contain at least one ID");
+  }
   return parsedWorkerIds;
 };
 
@@ -66,13 +70,13 @@ export const costByWorkerRoute = async (
   req: express.Request,
   res: express.Response
 ) => {
-  // Get the task status from the query string
   try {
+    // Validate query parameters
     const taskStatus = validateTaskStatus(req.query.taskStatus?.toString());
     const workerIds =
-      req.query.workerIds && validateWorkerIds(req.query.workerIds);
+      req.query.workerIds && validateObjectIds(req.query.workerIds);
 
-    const result = await costByWorker(taskStatus);
+    const result = await costByWorker(taskStatus, workerIds);
     res.send(result);
   } catch (e) {
     console.log(e);
@@ -84,7 +88,7 @@ export const costByWorker = async (
   taskStatus: TaskStatus,
   workerIds?: number[]
 ): Promise<APIResponse> => {
-  // Query for logged times
+  // Build the query for logged times
   const loggedTimesQB = AppDataSource.getRepository(LoggedTime)
     .createQueryBuilder("logged_time")
     .leftJoinAndSelect("logged_time.worker", "worker")
@@ -101,11 +105,12 @@ export const costByWorker = async (
       workerIds,
     });
   }
-
+  // Execute the query
   const loggedTimes = await loggedTimesQB.getMany();
 
+  // Calculate the total cost for each worker
   const breakdownDict: {
-    [workerId: number]: { totalCost: number; name: string };
+    [workerId: number]: WorkerBreakdown;
   } = loggedTimes.reduce((workerDict, loggedTime) => {
     const loggedTimeCost =
       (loggedTime.time_seconds / SECONDS_IN_HOUR) *
@@ -116,17 +121,15 @@ export const costByWorker = async (
     } else {
       workerDict[loggedTime.worker.id] = {
         totalCost: loggedTimeCost,
-        name: loggedTime.worker.username,
+        workerName: loggedTime.worker.username,
+        workerId: loggedTime.worker.id,
       };
     }
     return workerDict;
-  }, {} as { [workerId: number]: { totalCost: number; name: string } });
+  }, {} as { [workerId: number]: WorkerBreakdown });
 
-  const breakdown = Object.entries(breakdownDict).map(([workerId, worker]) => ({
-    workerId: parseInt(workerId),
-    totalCost: worker.totalCost,
-    workerName: worker.name,
-  }));
+  // Convert the dictionary to an array
+  const breakdown = Object.values(breakdownDict);
 
   try {
     return {
