@@ -28,9 +28,19 @@ Once it's ready to go, you can run the schema migrator to build the schema:
 docker compose run migrate
 ```
 
+To seed the database with test data used in the jest tests run seed:
+```bash
+docker compose run seed
+```
+
 If that fails (because of something like an already existing table), you can always start with a clean slate
 by bringing the DB container down:
 
 ```bash
 docker compose down
+```
+
+To run jest tests run:
+```bash
+docker compose run test
 ```
