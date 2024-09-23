@@ -17,15 +17,13 @@ describe("API Endpoints", () => {
 
   describe("200 on valid routes", () => {
     it("should return 200 for /analytics/by-worker", async () => {
-      const response = await request(app).get("/analytics/by-worker");
+      const response = await request(app).get("/analytics/by-worker?taskStatus=both");
       expect(response.status).toBe(200);
-      expect(response.text).toBe("Analytics by worker");
     });
     
     it("should return 200 for /analytics/by-location", async () => {
-      const response = await request(app).get("/analytics/by-location");
+      const response = await request(app).get("/analytics/by-location?taskStatus=both");
       expect(response.status).toBe(200);
-      expect(response.text).toBe("Analytics by location");
     });
   });
 

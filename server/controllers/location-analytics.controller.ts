@@ -1,7 +1,6 @@
 import express from "express";
 import {
   APIResponse,
-  APIResponseStatus,
   LocationBreakdown,
   SECONDS_IN_HOUR,
   TaskStatus,
@@ -72,7 +71,6 @@ export const costByLocation = async (
   }));
 
   return {
-    status: APIResponseStatus.SUCCESS,
     data: {
       totalCost: breakdown.reduce((acc, { totalCost }) => acc + totalCost, 0),
       breakdown,

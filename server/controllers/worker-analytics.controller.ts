@@ -3,7 +3,6 @@ import AppDataSource from "../db";
 import { LoggedTime } from "../entities/logged-time.entity";
 import {
   APIResponse,
-  APIResponseStatus,
   SECONDS_IN_HOUR,
   TaskStatus,
   validateObjectIds,
@@ -70,7 +69,6 @@ export const costByWorker = async (
   }));
 
   return {
-    status: APIResponseStatus.SUCCESS,
     data: {
       totalCost: breakdown.reduce((acc, { totalCost }) => acc + totalCost, 0),
       breakdown,

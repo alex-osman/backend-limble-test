@@ -6,11 +6,6 @@ export enum TaskStatus {
   BOTH = "BOTH",
 }
 
-export enum APIResponseStatus {
-  SUCCESS = "success",
-  ERROR = "error",
-}
-
 export interface WorkerBreakdown {
   workerId: number;
   workerName: string;
@@ -24,7 +19,6 @@ export interface LocationBreakdown {
 }
 
 export interface APIResponse<T extends WorkerBreakdown | LocationBreakdown> {
-  status: APIResponseStatus;
   data: {
     totalCost: number;
     breakdown: T[];
