@@ -127,3 +127,13 @@ GET /analytics/by-location?taskStatus=INCOMPLETE&locationIds=1,2
   },
 }
 ```
+
+## TODO
+- [ ] Add Joi schema validation to all routes
+- [ ] Write additional unit tests for validation functions
+- [ ] Add Docker commands for production
+- [ ] Implement pagination for large data sets in analytics endpoints
+- [ ] Optimize database queries for better performance under high load
+- [ ] Add rate limiting to prevent abuse of the API
+
+
