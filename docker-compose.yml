@@ -27,16 +27,79 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  
+  seed:
+    image: mariadb:11.3.2
+    command: ["/code/seed-db.sh"]
+    volumes:
+      - "./schema:/code"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: limble-test
+      DATABASE_PASSWORD: limble-test-password
+      DATABASE_NAME: limble
+    depends_on:
+      db:
+        condition: service_healthy
+
+  build:
+    image: node:21.7.1-bookworm-slim
+    working_dir: /code
+    volumes:
+      - "./server/:/code"
+    command: "npm run build"
+  
+  build-watch:
+    image: node:21.7.1-bookworm-slim
+    working_dir: /code
+    volumes:
+      - "./server/:/code"
+    command: "npm run watch"
 
   server:
     image: node:21.7.1-bookworm-slim
-    command: ["npm", "start"]
+    command: "npm run start"
     working_dir: /code
     user: node
     volumes:
       - "./server/:/code"
     ports:
       - "0.0.0.0:3000:3000"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: limble-test
+      DATABASE_PASSWORD: limble-test-password
+      DATABASE_NAME: limble
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  server-dev:
+    image: node:21.7.1-bookworm-slim
+    command: "npm run dev"
+    working_dir: /code
+    user: node
+    volumes:
+      - "./server/:/code"
+    ports:
+      - "0.0.0.0:3000:3000"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: limble-test
+      DATABASE_PASSWORD: limble-test-password
+      DATABASE_NAME: limble
+      NODE_ENV: dev
+    depends_on:
+      db:
+        condition: service_healthy
+
+  test:
+    image: node:21.7.1-bookworm-slim
+    working_dir: /code
+    command: "npm run test"
+    volumes:
+      - "./server:/code"
     environment:
       DATABASE_HOST: db
       DATABASE_USER: limble-test

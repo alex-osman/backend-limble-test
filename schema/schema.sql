@@ -9,6 +9,8 @@ CREATE TABLE tasks (
 
   location_id INT(11) NOT NULL,
 
+  is_complete BOOLEAN NOT NULL DEFAULT 0,
+
   FOREIGN KEY(location_id) REFERENCES locations(id) ON DELETE CASCADE
 ) ENGINE=INNODB;
 
