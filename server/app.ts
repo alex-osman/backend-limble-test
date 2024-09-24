@@ -1,8 +1,10 @@
 import express from "express";
 import morgan from "morgan";
 import AppDataSource from "./db";
-import { costByWorkerRoute } from "./controllers/worker-analytics.controller";
-import { costByLocationRoute } from "./controllers/location-analytics.controller";
+import {
+  costByLocationRoute,
+  costByWorkerRoute,
+} from "./controllers/analytics.controller";
 
 const app = express();
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
@@ -22,5 +24,5 @@ export const setupServer = async () => {
     res.status(404).send("Not found");
   });
 
-  return app
+  return app;
 };

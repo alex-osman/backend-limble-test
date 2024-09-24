@@ -29,6 +29,12 @@ export interface APIResponse<T extends WorkerBreakdown | LocationBreakdown> {
   };
 }
 
+/**
+ * Validates the taskStatus query parameter and ensures it is one of the allowed values.
+ * @param taskStatus - The task status string from the query parameters.
+ * @returns The validated TaskStatus enum value.
+ * @throws Error if the taskStatus is missing or invalid.
+ */
 export const validateTaskStatus = (taskStatus?: string): TaskStatus => {
   if (!taskStatus) {
     throw new Error("The 'taskStatus' query parameter is required.");
@@ -46,14 +52,20 @@ export const validateTaskStatus = (taskStatus?: string): TaskStatus => {
   return uppercaseStatus as TaskStatus;
 };
 
-export const validateObjectIds = (workerIds: any): number[] => {
-  if (!workerIds) {
+/**
+ * Validates the query parameter and ensures it's a list of valid integers
+ * @param objectIds - The workerIds or locationIds query parameter as a string (comma-separated).
+ * @returns An array of parsed integers.
+ * @throws Error if the workerIds contains invalid values or is an empty string.
+ */
+export const validateObjectIds = (objectIds: any): number[] => {
+  if (!objectIds) {
     return [];
   }
-  const parsedWorkerIds = workerIds.split(",").map((id) => parseInt(id));
-  if (parsedWorkerIds.some((id) => isNaN(id))) {
+  const parsedWorkerIds = objectIds.split(",").map((id) => parseInt(id));
+  if (parsedWorkerIds.some((id) => isNaN(id) || id < 0)) {
     throw new Error(
-      "workerIds query parameter must be a comma-separated list of integers"
+      "workerIds query parameter must be a comma-separated list of non-negative integers"
     );
   }
   if (!parsedWorkerIds.length) {
@@ -62,6 +74,11 @@ export const validateObjectIds = (workerIds: any): number[] => {
   return parsedWorkerIds;
 };
 
+/**
+ * Extracts the query parameters from the request object and validates them.
+ * @param req - The request object from the Express route.
+ * @returns An object containing the validated query parameters.
+ */
 export const getAnalyticQueryParams = (req: express.Request) => {
   return {
     taskStatus: validateTaskStatus(req.query.taskStatus?.toString()),
@@ -70,7 +87,14 @@ export const getAnalyticQueryParams = (req: express.Request) => {
   };
 };
 
-export const buildBaseQuery = (
+/**
+ * Builds the base query for calculating labor costs based on task status, worker, and location filters.
+ * @param taskStatus - The task status filter.
+ * @param workerIds - Optional list of worker IDs to filter by.
+ * @param locationIds - Optional list of location IDs to filter by.
+ * @returns A QueryBuilder for querying the logged_time entity.
+ */
+export const buildBaseAnalyticsQuery = (
   taskStatus: TaskStatus,
   workerIds?: number[],
   locationIds?: number[]

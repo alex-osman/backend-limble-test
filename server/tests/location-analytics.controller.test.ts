@@ -1,6 +1,7 @@
 import { setupServer } from "../app";
 import { TaskStatus } from "../controllers/controller-helpers";
-import { costByLocation } from "../controllers/location-analytics.controller";
+import { costByLocation } from "../controllers/analytics.controller";
+import AppDataSource from "../db";
 
 /*
   Tests assume that the database is seeded with the docker-compose run migrate
@@ -8,6 +9,10 @@ import { costByLocation } from "../controllers/location-analytics.controller";
 
 beforeAll(async () => {
   await setupServer();
+});
+
+afterAll(async () => {
+  await AppDataSource.destroy();
 });
 
 describe("costByLocation should filter by task statuses correctly", () => {

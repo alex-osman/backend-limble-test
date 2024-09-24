@@ -42,11 +42,11 @@ describe("validateObjectIds", () => {
 
   it("should throw an error if workerIds contains non-integer values", () => {
     expect(() => validateObjectIds("1,abc,3")).toThrow(
-      "workerIds query parameter must be a comma-separated list of integers"
+      "workerIds query parameter must be a comma-separated list of non-negative integers"
     );
   });
 
-  it.only("should return an empty array if workerIds is an empty string", () => {
+  it("should return an empty array if workerIds is an empty string", () => {
     const result = validateObjectIds("");
     expect(result).toEqual([]);
   });
@@ -54,7 +54,13 @@ describe("validateObjectIds", () => {
 
   it("should throw an error if workerIds contains NaN values", () => {
     expect(() => validateObjectIds("1,,3")).toThrow(
-      "workerIds query parameter must be a comma-separated list of integers"
+      "workerIds query parameter must be a comma-separated list of non-negative integers"
+    );
+  });
+  
+  it("should throw an error if workerIds contains NaN values", () => {
+    expect(() => validateObjectIds("1,-5, -3")).toThrow(
+      "workerIds query parameter must be a comma-separated list of non-negative integers"
     );
   });
 });

@@ -1,6 +1,7 @@
 import { setupServer } from "../app";
+import { costByWorker } from "../controllers/analytics.controller";
 import { TaskStatus } from "../controllers/controller-helpers";
-import { costByWorker } from "../controllers/worker-analytics.controller";
+import AppDataSource from "../db";
 
 /*
   Tests assume that the database is seeded with the docker-compose run migrate
@@ -8,6 +9,10 @@ import { costByWorker } from "../controllers/worker-analytics.controller";
 
 beforeAll(async () => {
   await setupServer();
+});
+
+afterAll(async () => {
+  await AppDataSource.destroy();
 });
 
 describe("costByWorker should filter by task statuses correctly", () => {
@@ -104,7 +109,7 @@ describe("costByWorker should filter by workers correctly", () => {
   });
 });
 
-describe.only("costByWorker should filter by location correctly", () => {
+describe("costByWorker should filter by location correctly", () => {
   it("should return correct data for all locations if no locationIds specified", async () => {
     const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3]);
 
