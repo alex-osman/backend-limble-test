@@ -47,7 +47,7 @@ docker compose run test
 
 ## API Endpoints
 
-The API provides two endpoints to calculate labor costs for workers and locations. Each endpoint allows filtering by task status (complete, incomplete, or both), worker IDs, and location IDs. These are `GET` requests and use query parameters to filter the response.
+The API provides two endpoints to calculate labor costs for workers and locations. Each endpoint allows filtering by task status (complete, incomplete, or both), worker IDs, and location IDs. These are `GET` requests which use query parameters to filter the response.
 
 ### 1. **Get Labor Cost by Worker**
 
@@ -61,7 +61,7 @@ The API provides two endpoints to calculate labor costs for workers and location
 #### Example Request:
 
 ```bash
-GET /analytics/by-worker?taskStatus=COMPLETE&workerIds=1,2,3&locationIds=3
+GET http://localhost:3000/analytics/by-worker?taskStatus=COMPLETE&workerIds=1,2,3&locationIds=3
 ```
 
 #### Example Response:
@@ -103,7 +103,7 @@ GET /analytics/by-worker?taskStatus=COMPLETE&workerIds=1,2,3&locationIds=3
 #### Example Request:
 
 ```bash
-GET /analytics/by-location?taskStatus=INCOMPLETE&locationIds=1,2
+GET http://localhost:3000/analytics/by-location?taskStatus=INCOMPLETE&locationIds=1,2
 ```
 
 #### Example Response:
@@ -128,12 +128,38 @@ GET /analytics/by-location?taskStatus=INCOMPLETE&locationIds=1,2
 }
 ```
 
+
+## Error Handling
+
+When a request contains invalid query parameters or the validation fails, the API responds with a structured error response in the following format:
+
+### Example Error Response:
+
+```json
+{
+  "status": "error",
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "taskStatus",
+      "message": "The 'taskStatus' query parameter is required."
+    },
+    {
+      "field": "workerIds",
+      "message": "workerIds query parameter must be a comma-separated list of non-negative integers"
+    }
+  ]
+}
+```
+
+Each error will contain:
+- **field**: The query parameter that caused the error.
+- **message**: A description of the error.
+
+
 ## TODO
-- [ ] Add Joi schema validation to all routes
-- [ ] Write additional unit tests for validation functions
-- [ ] Add Docker commands for production
 - [ ] Implement pagination for large data sets in analytics endpoints
-- [ ] Optimize database queries for better performance under high load
+- [ ] Optimize database queries for better performance under high load or large data sets
 - [ ] Add rate limiting to prevent abuse of the API
 
 

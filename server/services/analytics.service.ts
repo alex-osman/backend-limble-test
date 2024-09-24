@@ -127,8 +127,8 @@ export const getAnalyticQueryParams = (req: express.Request) => {
  */
 export const buildBaseAnalyticsQuery = (
   taskStatus: TaskStatus,
-  workerIds?: number[],
-  locationIds?: number[]
+  workerIds: number[] = [],
+  locationIds: number[] = []
 ) => {
   const loggedTimesQB = AppDataSource.getRepository(LoggedTime)
     .createQueryBuilder("logged_time")
