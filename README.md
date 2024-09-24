@@ -14,6 +14,24 @@ the dependencies by running:
 docker compose run server npm i
 ```
 
+### Production
+
+To run the backend server in production run the build service, then start the server
+
+```bash
+docker compose run build
+docker compose up server
+```
+
+### Dev
+
+To run the backend server in the dev environment to reload and recompile on changes, start the build-watch and server-dev services
+
+```bash
+docker compose up build-watch server-dev
+```
+
+
 ## Database
 
 To bring up the database:
