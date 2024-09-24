@@ -2,6 +2,7 @@ import express from "express";
 import {
   APIResponse,
   buildBaseAnalyticsQuery,
+  CostCalculator,
   getAnalyticQueryParams,
   LocationBreakdown,
   SECONDS_IN_HOUR,
@@ -9,20 +10,43 @@ import {
   WorkerBreakdown,
 } from "./controller-helpers";
 
-// Location Analytics
+/**
+ * Handles the cost calculation for the analytics routes
+ */
+const handleCostCalculation = (costCalculator: CostCalculator) => {
+  return async (req: express.Request, res: express.Response) => {
+    try {
+      const { taskStatus, locationIds, workerIds } = getAnalyticQueryParams(req);
+      const result = await costCalculator(taskStatus, locationIds, workerIds);
+      res.send(result);
+    } catch (e) {
+      res.status(400).json({
+        status: "error",
+        message: e.message,
+        errors: e.errors,
+      });
+    }
+  };
+};
 
+/**
+ * Route handler for the cost by location analytics route
+ */
 export const costByLocationRoute = async (
   req: express.Request,
   res: express.Response
 ) => {
-  try {
-    const { taskStatus, locationIds, workerIds } = getAnalyticQueryParams(req);
-    const result = await costByLocation(taskStatus, locationIds, workerIds);
-    res.send(result);
-  } catch (e) {
-    console.error(e);
-    res.status(400).send(e.message);
-  }
+  return handleCostCalculation(costByLocation)(req, res);
+};
+
+/**
+ * Route handler for the cost by worker analytics route
+ */
+export const costByWorkerRoute = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  return handleCostCalculation(costByWorker)(req, res);
 };
 
 export const costByLocation = async (
@@ -59,26 +83,10 @@ export const costByLocation = async (
   };
 };
 
-// Worker Analytics
-
-export const costByWorkerRoute = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  try {
-    const { taskStatus, locationIds, workerIds } = getAnalyticQueryParams(req);
-    const result = await costByWorker(taskStatus, workerIds, locationIds);
-    res.send(result);
-  } catch (e) {
-    console.error(e);
-    res.status(400).send(e.message);
-  }
-};
-
 export const costByWorker = async (
   taskStatus: TaskStatus,
-  workerIds?: number[],
-  locationIds?: number[]
+  locationIds?: number[],
+  workerIds?: number[]
 ): Promise<APIResponse<WorkerBreakdown>> => {
   const queryResult: {
     workerId: number;

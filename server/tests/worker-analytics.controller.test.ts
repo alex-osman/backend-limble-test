@@ -59,7 +59,7 @@ describe("costByWorker should filter by workers correctly", () => {
   });
 
   it("should return correct data for all workers if empty workerId array", async () => {
-    const result = await costByWorker(TaskStatus.BOTH, []);
+    const result = await costByWorker(TaskStatus.BOTH, [], []);
 
     expect(result.data.totalCost).toBe(905);
     expect(
@@ -69,7 +69,7 @@ describe("costByWorker should filter by workers correctly", () => {
   });
 
   it("should return correct data for workerid=1", async () => {
-    const result = await costByWorker(TaskStatus.BOTH, [1]);
+    const result = await costByWorker(TaskStatus.BOTH, [], [1]);
 
     expect(result.data.totalCost).toBe(150);
     expect(
@@ -89,7 +89,7 @@ describe("costByWorker should filter by workers correctly", () => {
   });
 
   it("should ignore invalid workerids", async () => {
-    const result = await costByWorker(TaskStatus.COMPLETE, [8948]);
+    const result = await costByWorker(TaskStatus.COMPLETE, [], [8948]);
 
     expect(result.data.totalCost).toBe(0);
     expect(
@@ -99,7 +99,7 @@ describe("costByWorker should filter by workers correctly", () => {
   });
 
   it("should ignore invalid workerids with valid workerIds", async () => {
-    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3, 8948]);
+    const result = await costByWorker(TaskStatus.BOTH, [], [1, 2, 3, 8948]);
 
     expect(result.data.totalCost).toBe(462.5);
     expect(
@@ -111,7 +111,7 @@ describe("costByWorker should filter by workers correctly", () => {
 
 describe("costByWorker should filter by location correctly", () => {
   it("should return correct data for all locations if no locationIds specified", async () => {
-    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3]);
+    const result = await costByWorker(TaskStatus.BOTH, undefined, [1, 2, 3]);
 
     expect(result.data.totalCost).toBe(462.5);
     expect(
@@ -119,9 +119,9 @@ describe("costByWorker should filter by location correctly", () => {
     ).toBe(462.5);
     expect(result.data.breakdown.length).toBe(3);
   });
-  
+
   it("should return correct data for one location", async () => {
-    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3], [1]);
+    const result = await costByWorker(TaskStatus.BOTH, [1], [1, 2, 3]);
 
     expect(result.data.totalCost).toBe(197.5);
     expect(
@@ -131,7 +131,7 @@ describe("costByWorker should filter by location correctly", () => {
   });
 
   it("should return correct data for multiple locations", async () => {
-    const result = await costByWorker(TaskStatus.BOTH, [1, 2, 3], [1, 3]);
+    const result = await costByWorker(TaskStatus.BOTH, [1, 3], [1, 2, 3]);
 
     expect(result.data.totalCost).toBe(372.5);
     expect(
