@@ -8,7 +8,7 @@ import {
   SECONDS_IN_HOUR,
   TaskStatus,
   WorkerBreakdown,
-} from "./controller-helpers";
+} from "../services/analytics.service";
 
 /**
  * Handles the cost calculation for the analytics routes

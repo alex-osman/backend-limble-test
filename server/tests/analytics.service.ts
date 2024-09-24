@@ -2,7 +2,7 @@ import { Request } from "express";
 import {
   getAnalyticQueryParams,
   TaskStatus,
-} from "../controllers/controller-helpers";
+} from "../services/analytics.service";
 
 describe("validateTaskStatus", () => {
   it("should return COMPLETE for 'complete'", () => {

@@ -1,6 +1,6 @@
 import { setupServer } from "../app";
 import { costByWorker } from "../controllers/analytics.controller";
-import { TaskStatus } from "../controllers/controller-helpers";
+import { TaskStatus } from "../services/analytics.service";
 import AppDataSource from "../db";
 
 /*

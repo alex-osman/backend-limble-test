@@ -1,5 +1,5 @@
 import { setupServer } from "../app";
-import { TaskStatus } from "../controllers/controller-helpers";
+import { TaskStatus } from "../services/analytics.service";
 import { costByLocation } from "../controllers/analytics.controller";
 import AppDataSource from "../db";
 
